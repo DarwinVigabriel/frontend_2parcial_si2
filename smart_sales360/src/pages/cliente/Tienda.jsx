@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import productosData from '../../data/productos';
 import './Tienda.css';
 
 function Tienda() {
@@ -8,8 +9,14 @@ function Tienda() {
   const [filtro, setFiltro] = useState('todos');
   const [ordenar, setOrdenar] = useState('relevancia');
 
-  // Datos mock temporales con imágenes de ejemplo
-  const productosMock = [
+  // Usar datos centralizados
+  const productosMock = productosData.map(p => ({
+    ...p,
+    precioAnterior: p.precioAnterior
+  }));
+  
+  // Backup original (comentado)
+  const productosMockOriginal = [
     {
       id: 1,
       nombre: 'Laptop HP Pavilion 15"',

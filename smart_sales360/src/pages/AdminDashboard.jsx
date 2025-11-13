@@ -1,11 +1,74 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { dashboardAPI } from '../services/api';
+import auditService from '../services/auditService';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [timeRange, setTimeRange] = useState('week');
+  const [loading, setLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState(null);
 
-  // Datos de ejemplo
-  const stats = [
+  // Cargar datos del dashboard
+  useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        setLoading(true);
+        const data = await dashboardAPI.getStats(timeRange);
+        setDashboardData(data);
+      } catch (error) {
+        console.error('Error cargando datos del dashboard:', error);
+        // Usar datos mock si falla
+        setDashboardData(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    cargarDatos();
+  }, [timeRange]);
+
+  // Registrar vista del dashboard
+  useEffect(() => {
+    auditService.logView('DASHBOARD', 'Acceso al dashboard principal');
+  }, []);
+
+  // Datos de ejemplo (fallback)
+  const stats = dashboardData ? [
+    {
+      title: 'Ventas Totales',
+      value: `$${dashboardData.ventas_totales?.toLocaleString() || '0'}`,
+      change: dashboardData.cambio_ventas || '+0%',
+      trend: dashboardData.cambio_ventas?.startsWith('+') ? 'up' : 'down',
+      icon: 'dollar',
+      color: 'primary'
+    },
+    {
+      title: 'Nuevos Clientes',
+      value: dashboardData.nuevos_clientes || '0',
+      change: dashboardData.cambio_clientes || '+0%',
+      trend: dashboardData.cambio_clientes?.startsWith('+') ? 'up' : 'down',
+      icon: 'users',
+      color: 'secondary'
+    },
+    {
+      title: 'Productos Vendidos',
+      value: dashboardData.productos_vendidos || '0',
+      change: dashboardData.cambio_productos || '+0%',
+      trend: dashboardData.cambio_productos?.startsWith('+') ? 'up' : 'down',
+      icon: 'box',
+      color: 'success'
+    },
+    {
+      title: 'Tasa de Conversión',
+      value: `${dashboardData.tasa_conversion || '0'}%`,
+      change: dashboardData.cambio_conversion || '+0%',
+      trend: dashboardData.cambio_conversion?.startsWith('+') ? 'up' : 'down',
+      icon: 'chart',
+      color: 'warning'
+    }
+  ] : [
     {
       title: 'Ventas Totales',
       value: '$45,231',
@@ -76,25 +139,37 @@ const AdminDashboard = () => {
         <div className="time-range-selector">
           <button 
             className={`range-btn ${timeRange === 'day' ? 'active' : ''}`}
-            onClick={() => setTimeRange('day')}
+            onClick={() => {
+              setTimeRange('day');
+              auditService.log('VIEW', 'DASHBOARD', 'Cambió vista a: Hoy');
+            }}
           >
             Hoy
           </button>
           <button 
             className={`range-btn ${timeRange === 'week' ? 'active' : ''}`}
-            onClick={() => setTimeRange('week')}
+            onClick={() => {
+              setTimeRange('week');
+              auditService.log('VIEW', 'DASHBOARD', 'Cambió vista a: Semana');
+            }}
           >
             Semana
           </button>
           <button 
             className={`range-btn ${timeRange === 'month' ? 'active' : ''}`}
-            onClick={() => setTimeRange('month')}
+            onClick={() => {
+              setTimeRange('month');
+              auditService.log('VIEW', 'DASHBOARD', 'Cambió vista a: Mes');
+            }}
           >
             Mes
           </button>
           <button 
             className={`range-btn ${timeRange === 'year' ? 'active' : ''}`}
-            onClick={() => setTimeRange('year')}
+            onClick={() => {
+              setTimeRange('year');
+              auditService.log('VIEW', 'DASHBOARD', 'Cambió vista a: Año');
+            }}
           >
             Año
           </button>
@@ -103,7 +178,12 @@ const AdminDashboard = () => {
 
       {/* Stats Cards */}
       <div className="stats-grid">
-        {stats.map((stat, index) => (
+        {loading && (
+          <div style={{gridColumn: '1 / -1', textAlign: 'center', padding: '20px', color: '#6b7280'}}>
+            Cargando datos...
+          </div>
+        )}
+        {!loading && stats.map((stat, index) => (
           <div key={index} className={`stat-card stat-${stat.color}`}>
             <div className="stat-header">
               <div className="stat-icon">
@@ -129,7 +209,15 @@ const AdminDashboard = () => {
         <div className="card recent-sales-card">
           <div className="card-header">
             <h3 className="card-title">Ventas Recientes</h3>
-            <button className="view-all-btn">Ver todas</button>
+            <button 
+              className="view-all-btn"
+              onClick={() => {
+                auditService.logView('VENTAS', 'Acceso desde dashboard - Ver todas las ventas');
+                navigate('/dashboard/ventas');
+              }}
+            >
+              Ver todas
+            </button>
           </div>
           <div className="table-container">
             <table className="data-table">
@@ -173,7 +261,15 @@ const AdminDashboard = () => {
         <div className="card top-products-card">
           <div className="card-header">
             <h3 className="card-title">Productos Más Vendidos</h3>
-            <button className="view-all-btn">Ver todos</button>
+            <button 
+              className="view-all-btn"
+              onClick={() => {
+                auditService.logView('PRODUCTOS', 'Acceso desde dashboard - Ver todos los productos');
+                navigate('/dashboard/productos');
+              }}
+            >
+              Ver todos
+            </button>
           </div>
           <div className="products-list">
             {topProducts.map((product, index) => (
@@ -227,29 +323,41 @@ const AdminDashboard = () => {
             <h3 className="card-title">Acciones Rápidas</h3>
           </div>
           <div className="actions-grid">
-            <button className="action-btn">
+            <button className="action-btn" onClick={() => {
+              auditService.logView('VENTAS', 'Acceso rápido desde dashboard');
+              navigate('/dashboard/ventas');
+            }}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M12 4v16m8-8H4" />
               </svg>
               Nueva Venta
             </button>
-            <button className="action-btn">
+            <button className="action-btn" onClick={() => {
+              auditService.logView('CLIENTES', 'Acceso rápido desde dashboard');
+              navigate('/dashboard/clientes');
+            }}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
               Nuevo Cliente
             </button>
-            <button className="action-btn">
+            <button className="action-btn" onClick={() => {
+              auditService.logView('PRODUCTOS', 'Acceso rápido desde dashboard');
+              navigate('/dashboard/productos');
+            }}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
               Nuevo Producto
             </button>
-            <button className="action-btn">
+            <button className="action-btn" onClick={() => {
+              auditService.logView('BITACORA', 'Acceso rápido desde dashboard');
+              navigate('/dashboard/bitacora');
+            }}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
               </svg>
-              Generar Reporte
+              Ver Bitácora
             </button>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { productosAPI } from '../services/api';
 import { exportProductosToCSV, exportProductosToExcel, generateFilename } from '../utils/exportUtils';
+import productosData from '../data/productos';
 import './Productos.css';
 
 const Productos = () => {
@@ -20,14 +21,20 @@ const Productos = () => {
     descripcion: ''
   });
 
-  // Datos mock
-  const productosMock = [
-    { id: 1, nombre: 'Laptop HP Pavilion', sku: 'LAP001', codigo_barras: '123456789', precio_venta: 1299, stock_actual: 15, stock_minimo: 5 },
-    { id: 2, nombre: 'Mouse Logitech MX', sku: 'MOU001', codigo_barras: '987654321', precio_venta: 45, stock_actual: 50, stock_minimo: 10 },
-    { id: 3, nombre: 'Teclado Mecánico RGB', sku: 'TEC001', codigo_barras: '456789123', precio_venta: 120, stock_actual: 30, stock_minimo: 8 },
-    { id: 4, nombre: 'Monitor Samsung 27"', sku: 'MON001', codigo_barras: '789123456', precio_venta: 350, stock_actual: 20, stock_minimo: 5 },
-    { id: 5, nombre: 'Webcam HD Logitech', sku: 'WEB001', codigo_barras: '321654987', precio_venta: 89, stock_actual: 25, stock_minimo: 10 },
-  ];
+  // Usar datos centralizados (adaptados para vista de administrador)
+  const productosMock = productosData.map(p => ({
+    id: p.id,
+    nombre: p.nombre,
+    sku: p.sku,
+    codigo_barras: p.codigo,
+    precio_venta: p.precio,
+    precio_compra: p.precio * 0.6, // 60% del precio de venta
+    stock_actual: p.stock,
+    stock_minimo: Math.floor(p.stock * 0.2), // 20% del stock actual
+    descripcion: p.descripcion,
+    imagen: p.imagen,
+    categoria: p.categoria
+  }));
 
   useEffect(() => {
     cargarProductos();

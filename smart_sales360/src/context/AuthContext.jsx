@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import auditService from '../services/auditService';
 
 const AuthContext = createContext();
 
@@ -26,9 +27,16 @@ export const AuthProvider = ({ children }) => {
   const login = (userData) => {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
+    // Registrar evento de login
+    const nombreUsuario = userData.nombre || userData.username || userData.email || 'Usuario';
+    auditService.logLogin(nombreUsuario);
   };
 
   const logout = () => {
+    // Registrar evento de logout antes de limpiar
+    const nombreUsuario = user?.nombre || user?.username || user?.email || 'Usuario';
+    auditService.logLogout(nombreUsuario);
+    
     setUser(null);
     localStorage.removeItem('user');
   };

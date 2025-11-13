@@ -3,6 +3,7 @@ import { productosAPI, clientesAPI, ventasAPI } from '../services/api';
 import { imprimirComprobante, downloadPDF, generarNombreArchivoPDF } from '../utils/pdfGenerator';
 import { exportVentasToCSV, exportVentasToExcel, generateFilename } from '../utils/exportUtils';
 import NuevoClienteModal from '../components/NuevoClienteModal';
+import auditService from '../services/auditService';
 import './Ventas.css';
 
 const Ventas = () => {

@@ -12,6 +12,7 @@ import Clientes from './pages/Clientes'
 import Reportes from './pages/Reportes'
 import Usuarios from './pages/Usuarios'
 import Configuracion from './pages/Configuracion'
+import Bitacora from './pages/Bitacora'
 import Tienda from './pages/cliente/Tienda'
 import Carrito from './pages/cliente/Carrito'
 import './App.css'
@@ -43,6 +44,7 @@ function App() {
             <Route path="reportes" element={<Reportes />} />
             <Route path="usuarios" element={<Usuarios />} />
             <Route path="configuracion" element={<Configuracion />} />
+            <Route path="bitacora" element={<Bitacora />} />
           </Route>
 
           {/* Rutas Cliente - Protegidas */}
