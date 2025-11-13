@@ -211,6 +211,11 @@ const Productos = () => {
       <div className="productos-grid">
         {productosFiltrados.map(producto => (
           <div key={producto.id} className="producto-card">
+            {producto.imagen && (
+              <div className="producto-imagen">
+                <img src={producto.imagen} alt={producto.nombre} />
+              </div>
+            )}
             <div className="producto-header">
               <h3>{producto.nombre}</h3>
               <div className="producto-actions">

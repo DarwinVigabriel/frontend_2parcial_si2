@@ -6,128 +6,11 @@ import './Tienda.css';
 function Tienda() {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filtro, setFiltro] = useState('todos');
+  const [categoriaActiva, setCategoriaActiva] = useState('todos');
   const [ordenar, setOrdenar] = useState('relevancia');
 
   // Usar datos centralizados
-  const productosMock = productosData.map(p => ({
-    ...p,
-    precioAnterior: p.precioAnterior
-  }));
-  
-  // Backup original (comentado)
-  const productosMockOriginal = [
-    {
-      id: 1,
-      nombre: 'Laptop HP Pavilion 15"',
-      precio: 4500,
-      precioAnterior: 5200,
-      imagen: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=400&fit=crop',
-      categoria: 'Computación',
-      stock: 15,
-      descuento: 13
-    },
-    {
-      id: 2,
-      nombre: 'Mouse Logitech MX Master',
-      precio: 350,
-      imagen: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400&h=400&fit=crop',
-      categoria: 'Computación',
-      stock: 50
-    },
-    {
-      id: 3,
-      nombre: 'Teclado Mecánico RGB Gaming',
-      precio: 580,
-      precioAnterior: 720,
-      imagen: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=400&h=400&fit=crop',
-      categoria: 'Computación',
-      stock: 25,
-      descuento: 19
-    },
-    {
-      id: 4,
-      nombre: 'Monitor LG UltraWide 27"',
-      precio: 1850,
-      imagen: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400&h=400&fit=crop',
-      categoria: 'Computación',
-      stock: 10
-    },
-    {
-      id: 5,
-      nombre: 'Webcam Logitech HD 1080p',
-      precio: 420,
-      precioAnterior: 550,
-      imagen: 'https://images.unsplash.com/photo-1585792180666-f7347c490ee2?w=400&h=400&fit=crop',
-      categoria: 'Computación',
-      stock: 30,
-      descuento: 24
-    },
-    {
-      id: 6,
-      nombre: 'Auriculares Sony WH-1000XM4',
-      precio: 890,
-      precioAnterior: 1100,
-      imagen: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop',
-      categoria: 'Audio y Video',
-      stock: 20,
-      descuento: 19
-    },
-    {
-      id: 7,
-      nombre: 'Refrigeradora Samsung 18 pies',
-      precio: 3200,
-      precioAnterior: 3800,
-      imagen: 'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=400&h=400&fit=crop',
-      categoria: 'Electrodomésticos',
-      stock: 8,
-      descuento: 16
-    },
-    {
-      id: 8,
-      nombre: 'Microondas LG 1.5 cu ft',
-      precio: 680,
-      imagen: 'https://images.unsplash.com/photo-1585659722983-3a675dabf23d?w=400&h=400&fit=crop',
-      categoria: 'Electrodomésticos',
-      stock: 15
-    },
-    {
-      id: 9,
-      nombre: 'Lavadora Whirlpool 18kg',
-      precio: 2850,
-      imagen: 'https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=400&h=400&fit=crop',
-      categoria: 'Electrodomésticos',
-      stock: 12
-    },
-    {
-      id: 10,
-      nombre: 'Smart TV Samsung 55" 4K',
-      precio: 3500,
-      precioAnterior: 4200,
-      imagen: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=400&h=400&fit=crop',
-      categoria: 'Audio y Video',
-      stock: 18,
-      descuento: 17
-    },
-    {
-      id: 11,
-      nombre: 'Licuadora Oster 600W',
-      precio: 320,
-      imagen: 'https://images.unsplash.com/photo-1585515320310-259814833e62?w=400&h=400&fit=crop',
-      categoria: 'Electrodomésticos',
-      stock: 35
-    },
-    {
-      id: 12,
-      nombre: 'Smartphone Samsung Galaxy S23',
-      precio: 4800,
-      precioAnterior: 5500,
-      imagen: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=400&fit=crop',
-      categoria: 'Telefonía',
-      stock: 22,
-      descuento: 13
-    }
-  ];
+  const productosMock = productosData;
 
   useEffect(() => {
     // TODO: Conectar con backend
@@ -136,6 +19,40 @@ function Tienda() {
       setLoading(false);
     }, 500);
   }, []);
+
+  // Filtrar productos por categoría
+  const productosFiltrados = productos.filter(producto => {
+    if (categoriaActiva === 'todos') return true;
+    
+    if (categoriaActiva === 'ofertas') {
+      return producto.descuento && producto.descuento > 0;
+    }
+
+    // Mapear categorías de las pestañas a las categorías de productos
+    const mapaCategorias = {
+      'computacion': ['Computación', 'Periféricos', 'Monitores'],
+      'electrodomesticos': ['Electrodomésticos', 'Climatización'],
+      'audio': ['Audio', 'Audio y Video', 'Televisores'],
+      'telefonia': ['Telefonía', 'Smart Home']
+    };
+
+    const categoriasPermitidas = mapaCategorias[categoriaActiva] || [];
+    return categoriasPermitidas.includes(producto.categoria);
+  });
+
+  // Ordenar productos
+  const productosOrdenados = [...productosFiltrados].sort((a, b) => {
+    switch (ordenar) {
+      case 'menor-precio':
+        return a.precio - b.precio;
+      case 'mayor-precio':
+        return b.precio - a.precio;
+      case 'descuento':
+        return (b.descuento || 0) - (a.descuento || 0);
+      default:
+        return 0;
+    }
+  });
 
   const handleAddToCart = (producto) => {
     // TODO: Implementar agregar al carrito
@@ -161,23 +78,61 @@ function Tienda() {
         </div>
       </div>
 
+      {/* Pestañas de Categorías */}
+      <div className="categorias-tabs">
+        <button 
+          className={`tab-btn ${categoriaActiva === 'todos' ? 'active' : ''}`}
+          onClick={() => setCategoriaActiva('todos')}
+        >
+          Todos los Productos
+        </button>
+        <button 
+          className={`tab-btn ${categoriaActiva === 'computacion' ? 'active' : ''}`}
+          onClick={() => setCategoriaActiva('computacion')}
+        >
+          Computación
+        </button>
+        <button 
+          className={`tab-btn ${categoriaActiva === 'electrodomesticos' ? 'active' : ''}`}
+          onClick={() => setCategoriaActiva('electrodomesticos')}
+        >
+          Electrodomésticos
+        </button>
+        <button 
+          className={`tab-btn ${categoriaActiva === 'audio' ? 'active' : ''}`}
+          onClick={() => setCategoriaActiva('audio')}
+        >
+          Audio y Video
+        </button>
+        <button 
+          className={`tab-btn ${categoriaActiva === 'telefonia' ? 'active' : ''}`}
+          onClick={() => setCategoriaActiva('telefonia')}
+        >
+          Telefonía
+        </button>
+        <button 
+          className={`tab-btn tab-ofertas ${categoriaActiva === 'ofertas' ? 'active' : ''}`}
+          onClick={() => setCategoriaActiva('ofertas')}
+        >
+          🔥 Ofertas
+        </button>
+      </div>
+
       {/* Filtros y Ordenamiento */}
       <div className="tienda-toolbar">
         <div className="toolbar-left">
-          <span className="productos-count">{productos.length} productos</span>
+          <span className="productos-count">
+            {productosOrdenados.length} producto{productosOrdenados.length !== 1 ? 's' : ''}
+            {categoriaActiva !== 'todos' && ` en ${
+              categoriaActiva === 'computacion' ? 'Computación' :
+              categoriaActiva === 'electrodomesticos' ? 'Electrodomésticos' :
+              categoriaActiva === 'audio' ? 'Audio y Video' :
+              categoriaActiva === 'telefonia' ? 'Telefonía' :
+              'Ofertas'
+            }`}
+          </span>
         </div>
         <div className="toolbar-right">
-          <select 
-            className="filter-select"
-            value={filtro}
-            onChange={(e) => setFiltro(e.target.value)}
-          >
-            <option value="todos">Todas las categorías</option>
-            <option value="Computación">Computación</option>
-            <option value="Electrodomésticos">Electrodomésticos</option>
-            <option value="Audio y Video">Audio y Video</option>
-            <option value="Telefonía">Telefonía</option>
-          </select>
           <select 
             className="filter-select"
             value={ordenar}
@@ -193,7 +148,12 @@ function Tienda() {
 
       {/* Grid de Productos */}
       <div className="productos-grid">
-        {productos.map((producto) => (
+        {productosOrdenados.length === 0 ? (
+          <div className="no-productos">
+            <p>No hay productos en esta categoría</p>
+          </div>
+        ) : (
+          productosOrdenados.map((producto) => (
           <div key={producto.id} className="producto-card">
             {/* Badge de descuento */}
             {producto.descuento && (
@@ -249,7 +209,8 @@ function Tienda() {
               </button>
             </div>
           </div>
-        ))}
+        ))
+        )}
       </div>
     </div>
   );
