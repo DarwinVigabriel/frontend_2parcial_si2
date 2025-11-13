@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Login.css';
 
 const Login = () => {
@@ -8,6 +9,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -15,6 +17,16 @@ const Login = () => {
     
     // TODO: Conectar con backend para autenticación real
     // Por ahora, simulamos roles según el email
+    const userData = {
+      email,
+      role: email.includes('admin') ? 'admin' : 'cliente',
+      name: email.split('@')[0]
+    };
+
+    // Guardar usuario en el contexto
+    login(userData);
+
+    // Redirigir según el rol
     if (email.includes('admin')) {
       navigate('/dashboard');
     } else {
@@ -171,6 +183,10 @@ const Login = () => {
               </button>
             </div>
           </form>
+
+          <Link to="/" className="back-home-link">
+            ← Volver al inicio
+          </Link>
 
           <p className="signup-text">
             ¿No tienes una cuenta?{' '}

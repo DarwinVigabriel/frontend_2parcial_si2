@@ -1,14 +1,24 @@
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import './ClienteLayout.css';
 
 function ClienteLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { logout } = useAuth();
   const [cartCount] = useState(3); // TODO: Conectar con estado real del carrito
   const [showUserMenu, setShowUserMenu] = useState(false);
 
+  const isActive = (path) => {
+    if (path === '/tienda') {
+      return location.pathname === '/tienda';
+    }
+    return location.pathname.startsWith(path);
+  };
+
   const handleLogout = () => {
-    // TODO: Implementar logout
+    logout();
     navigate('/');
   };
 
@@ -42,12 +52,54 @@ function ClienteLayout() {
               placeholder="Buscar productos..."
             />
           </div>
+        </div>
 
-          {/* Acciones */}
-          <div className="header-actions">
+        {/* Navegación con Carrito y Usuario */}
+        <nav className="cliente-nav">
+          <div className="nav-links">
+            <Link 
+              to="/tienda" 
+              className={`nav-link ${isActive('/tienda') && location.pathname === '/tienda' ? 'active' : ''}`}
+            >
+              Todos los Productos
+            </Link>
+            <Link 
+              to="/tienda/categorias/computacion" 
+              className={`nav-link ${isActive('/tienda/categorias/computacion') ? 'active' : ''}`}
+            >
+              Computación
+            </Link>
+            <Link 
+              to="/tienda/categorias/electrodomesticos" 
+              className={`nav-link ${isActive('/tienda/categorias/electrodomesticos') ? 'active' : ''}`}
+            >
+              Electrodomésticos
+            </Link>
+            <Link 
+              to="/tienda/categorias/audio-video" 
+              className={`nav-link ${isActive('/tienda/categorias/audio-video') ? 'active' : ''}`}
+            >
+              Audio y Video
+            </Link>
+            <Link 
+              to="/tienda/categorias/telefonia" 
+              className={`nav-link ${isActive('/tienda/categorias/telefonia') ? 'active' : ''}`}
+            >
+              Telefonía
+            </Link>
+            <Link 
+              to="/tienda/ofertas" 
+              className={`nav-link ofertas ${isActive('/tienda/ofertas') ? 'active' : ''}`}
+            >
+              Ofertas
+            </Link>
+          </div>
+
+          {/* Acciones en la navegación */}
+          <div className="nav-actions">
             {/* Carrito */}
-            <Link to="/tienda/carrito" className="header-btn cart-btn">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <Link to="/tienda/carrito" className="nav-btn cart-btn">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="9" cy="21" r="1"/>
                 <circle cx="20" cy="21" r="1"/>
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
@@ -58,10 +110,10 @@ function ClienteLayout() {
             {/* Usuario */}
             <div className="user-menu">
               <button 
-                className="header-btn user-btn"
+                className="nav-btn user-btn"
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                   <circle cx="12" cy="7" r="4"/>
                 </svg>
@@ -94,16 +146,6 @@ function ClienteLayout() {
               )}
             </div>
           </div>
-        </div>
-
-        {/* Navegación */}
-        <nav className="cliente-nav">
-          <Link to="/tienda" className="nav-link">Todos los Productos</Link>
-          <Link to="/tienda/categorias/computacion" className="nav-link">Computación</Link>
-          <Link to="/tienda/categorias/electrodomesticos" className="nav-link">Electrodomésticos</Link>
-          <Link to="/tienda/categorias/audio-video" className="nav-link">Audio y Video</Link>
-          <Link to="/tienda/categorias/telefonia" className="nav-link">Telefonía</Link>
-          <Link to="/tienda/ofertas" className="nav-link ofertas">Ofertas</Link>
         </nav>
       </header>
 

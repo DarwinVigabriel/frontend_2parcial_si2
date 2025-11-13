@@ -1,4 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
+import Home from './pages/Home'
 import Login from './components/Login'
 import DashboardLayout from './layouts/DashboardLayout'
 import ClienteLayout from './layouts/ClienteLayout'
@@ -15,36 +18,56 @@ import './App.css'
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        
-        {/* Rutas Admin */}
-        <Route path="/dashboard" element={<DashboardLayout />}>
-          <Route index element={<AdminDashboard />} />
-          <Route path="ventas" element={<Ventas />} />
-          <Route path="productos" element={<Productos />} />
-          <Route path="clientes" element={<Clientes />} />
-          <Route path="reportes" element={<Reportes />} />
-          <Route path="usuarios" element={<Usuarios />} />
-          <Route path="configuracion" element={<Configuracion />} />
-        </Route>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Página de Inicio Pública */}
+          <Route path="/" element={<Home />} />
+          
+          {/* Login */}
+          <Route path="/login" element={<Login />} />
+          
+          {/* Rutas Admin - Protegidas */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="ventas" element={<Ventas />} />
+            <Route path="productos" element={<Productos />} />
+            <Route path="clientes" element={<Clientes />} />
+            <Route path="reportes" element={<Reportes />} />
+            <Route path="usuarios" element={<Usuarios />} />
+            <Route path="configuracion" element={<Configuracion />} />
+          </Route>
 
-        {/* Rutas Cliente */}
-        <Route path="/tienda" element={<ClienteLayout />}>
-          <Route index element={<Tienda />} />
-          <Route path="carrito" element={<Carrito />} />
-          <Route path="categorias/:categoria" element={<Tienda />} />
-          <Route path="ofertas" element={<Tienda />} />
-          <Route path="producto/:id" element={<div>Detalle Producto (por implementar)</div>} />
-          <Route path="pedidos" element={<div>Mis Pedidos (por implementar)</div>} />
-          <Route path="perfil" element={<div>Mi Perfil (por implementar)</div>} />
-          <Route path="checkout" element={<div>Checkout (por implementar)</div>} />
-        </Route>
+          {/* Rutas Cliente - Protegidas */}
+          <Route
+            path="/tienda"
+            element={
+              <ProtectedRoute>
+                <ClienteLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Tienda />} />
+            <Route path="carrito" element={<Carrito />} />
+            <Route path="categorias/:categoria" element={<Tienda />} />
+            <Route path="ofertas" element={<Tienda />} />
+            <Route path="producto/:id" element={<div>Detalle Producto (por implementar)</div>} />
+            <Route path="pedidos" element={<div>Mis Pedidos (por implementar)</div>} />
+            <Route path="perfil" element={<div>Mi Perfil (por implementar)</div>} />
+            <Route path="checkout" element={<div>Checkout (por implementar)</div>} />
+          </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './DashboardLayout.css';
 
 const DashboardLayout = () => {
@@ -7,6 +8,7 @@ const DashboardLayout = () => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const menuItems = [
     { path: '/dashboard', icon: 'home', label: 'Dashboard', roles: ['admin', 'vendedor'] },
@@ -19,7 +21,7 @@ const DashboardLayout = () => {
   ];
 
   const handleLogout = () => {
-    // Lógica de logout
+    logout();
     navigate('/');
   };
 
