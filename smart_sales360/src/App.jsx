@@ -1,34 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import Login from './components/Login'
+import DashboardLayout from './layouts/DashboardLayout'
+import ClienteLayout from './layouts/ClienteLayout'
+import AdminDashboard from './pages/AdminDashboard'
+import Ventas from './pages/Ventas'
+import Productos from './pages/Productos'
+import Clientes from './pages/Clientes'
+import Reportes from './pages/Reportes'
+import Usuarios from './pages/Usuarios'
+import Configuracion from './pages/Configuracion'
+import Tienda from './pages/cliente/Tienda'
+import Carrito from './pages/cliente/Carrito'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        
+        {/* Rutas Admin */}
+        <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="ventas" element={<Ventas />} />
+          <Route path="productos" element={<Productos />} />
+          <Route path="clientes" element={<Clientes />} />
+          <Route path="reportes" element={<Reportes />} />
+          <Route path="usuarios" element={<Usuarios />} />
+          <Route path="configuracion" element={<Configuracion />} />
+        </Route>
+
+        {/* Rutas Cliente */}
+        <Route path="/tienda" element={<ClienteLayout />}>
+          <Route index element={<Tienda />} />
+          <Route path="carrito" element={<Carrito />} />
+          <Route path="categorias/:categoria" element={<Tienda />} />
+          <Route path="ofertas" element={<Tienda />} />
+          <Route path="producto/:id" element={<div>Detalle Producto (por implementar)</div>} />
+          <Route path="pedidos" element={<div>Mis Pedidos (por implementar)</div>} />
+          <Route path="perfil" element={<div>Mi Perfil (por implementar)</div>} />
+          <Route path="checkout" element={<div>Checkout (por implementar)</div>} />
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
